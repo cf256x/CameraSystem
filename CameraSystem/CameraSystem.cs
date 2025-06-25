@@ -4,6 +4,8 @@ using System.Linq;
 using AdminToys;
 using CommandSystem.Commands.RemoteAdmin;
 using CommandSystem.Commands.RemoteAdmin.Dummies;
+using GameCore;
+using InventorySystem.Items;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
@@ -15,6 +17,7 @@ using RemoteAdmin.Communication;
 using UnityEngine;
 
 using Logger = LabApi.Features.Console.Logger;
+using Version = System.Version;
 
 namespace CameraSystem
 {
@@ -34,6 +37,7 @@ namespace CameraSystem
 
         public ReferenceHub DummyHub;
         public ReferenceHub PlayerHub;
+        public bool IsWatching;
         public List<Item> PlayerItems = new List<Item>();
 
         public override void Disable()
@@ -60,7 +64,7 @@ namespace CameraSystem
         {
             Logger.Debug("Interaction detected");
 
-            if (DummyHub != null) return;
+            if (IsWatching) return;
 
             DummyHub = DummyUtils.SpawnDummy(ev.Player.DisplayName);
             Player dummy = Player.Get(DummyHub);
@@ -69,7 +73,7 @@ namespace CameraSystem
             dummy.Role = ev.Player.Role;
             dummy.Position = ev.Player.Position;
             dummy.Rotation = ev.Player.Rotation;
-            
+
             foreach (Item i in ev.Player.Items)
             {
                 PlayerItems.Add(i);
@@ -79,39 +83,56 @@ namespace CameraSystem
             ev.Player.Role = RoleTypeId.Scp079;
             ev.Player.SendBroadcast($"<size=32><b>Чтобы перестать наблюдать введите в консоль: <color=green>\".exitcamera\"</color></b></size>", 15);
 
+            IsWatching = true;
+
             PlayerHub = ev.Player.ReferenceHub;
         }
 
         private void OnHurt(PlayerHurtEventArgs ev)
         {
+            if (ev.Player == null || ev.Attacker == null) return;
             ReplaceDummy();
         }
 
         private void OnRoundStarted()
         {
-            foreach (var prefab in NetworkManager.singleton.spawnPrefabs)
-            {
-                // InvisibleInteractableToy
-                if (prefab.name == "InvisibleInteractableToy")
-                {
-                    Logger.Debug("Prefab founded");
+            //foreach (var prefab in NetworkManager.singleton.spawnPrefabs)
+            //{
+            //    // InvisibleInteractableToy
+            //    if (prefab.name == "InvisibleInteractableToy")
+            //    {
+            //        Logger.Debug("Prefab founded");
 
-                    var adminToy = prefab.GetComponent<AdminToyBase>();
-                    if (adminToy != null)
-                    {
-                        GameObject interactableObject = UnityEngine.Object.Instantiate(prefab, Config.ToyPosition, new Quaternion(0, 0, 0, 0));
-                        AdminToyBase adminToyBase = interactableObject.GetComponent<AdminToyBase>();
+            //        var adminToy = prefab.GetComponent<AdminToyBase>();
+            //        if (adminToy != null)
+            //        {
+            //            GameObject interactableObject = UnityEngine.Object.Instantiate(prefab, Config.ToyPosition, new Quaternion(0, 0, 0, 0));
+            //            AdminToyBase adminToyBase = interactableObject.GetComponent<AdminToyBase>();
 
-                        if (adminToyBase == null)
-                        {
-                            UnityEngine.Object.Destroy(interactableObject);
-                            return;
-                        }
+            //            if (adminToyBase == null)
+            //            {
+            //                UnityEngine.Object.Destroy(interactableObject);
+            //                return;
+            //            }
 
-                        NetworkServer.Spawn(adminToyBase.gameObject);
-                    }
-                }
-            }
+            //            NetworkServer.Spawn(adminToyBase.gameObject);
+            //        }
+            //    }
+            //}
+
+            GameObject interactable = UnityEngine.Object.Instantiate(NetworkManager.singleton.spawnPrefabs.First(x => x.name == "InvisibleInteractableToy"),
+                Config.ToyPosition, new Quaternion(0, 0, 0, 0));
+
+            //GameObject bench = UnityEngine.Object.Instantiate(NetworkClient.prefabs.Values.First(x => x.name == "Spawnable Work Station Structure"));
+
+            //Room intercom = Room.List.First(x => x.Name == MapGeneration.RoomName.EzIntercom);
+
+            //bench.transform.position = intercom.Position;
+            //bench.transform.rotation = intercom.Rotation;
+            //bench.transform.localScale = Vector3.one;
+
+            //NetworkServer.Spawn(bench.gameObject);
+            NetworkServer.Spawn(interactable.GetComponent<AdminToyBase>().gameObject);
         }
 
         public void ReplaceDummy()
@@ -134,6 +155,8 @@ namespace CameraSystem
 
             PlayerHub = null;
             DummyHub = null;
+
+            IsWatching = false;
         }
     }
 }

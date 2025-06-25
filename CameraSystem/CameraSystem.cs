@@ -96,30 +96,6 @@ namespace CameraSystem
 
         private void OnRoundStarted()
         {
-            //foreach (var prefab in NetworkManager.singleton.spawnPrefabs)
-            //{
-            //    // InvisibleInteractableToy
-            //    if (prefab.name == "InvisibleInteractableToy")
-            //    {
-            //        Logger.Debug("Prefab founded");
-
-            //        var adminToy = prefab.GetComponent<AdminToyBase>();
-            //        if (adminToy != null)
-            //        {
-            //            GameObject interactableObject = UnityEngine.Object.Instantiate(prefab, Config.ToyPosition, new Quaternion(0, 0, 0, 0));
-            //            AdminToyBase adminToyBase = interactableObject.GetComponent<AdminToyBase>();
-
-            //            if (adminToyBase == null)
-            //            {
-            //                UnityEngine.Object.Destroy(interactableObject);
-            //                return;
-            //            }
-
-            //            NetworkServer.Spawn(adminToyBase.gameObject);
-            //        }
-            //    }
-            //}
-
             GameObject interactable = UnityEngine.Object.Instantiate(NetworkManager.singleton.spawnPrefabs.First(x => x.name == "InvisibleInteractableToy"),
                 Config.ToyPosition, new Quaternion(0, 0, 0, 0));
 

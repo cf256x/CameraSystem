@@ -121,6 +121,7 @@ namespace CameraSystem
             player.Position = dummy.Position;
             player.Rotation = dummy.Rotation;
 
+            player.ClearInventory();
             foreach (Item i in PlayerItems)
             {
                 player.AddItem(i.Type);

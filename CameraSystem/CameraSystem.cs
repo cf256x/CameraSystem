@@ -76,6 +76,8 @@ namespace CameraSystem
 
             foreach (Item i in ev.Player.Items)
             {
+                Logger.Debug($"Adding {i} to dummy");
+
                 PlayerItems.Add(i);
                 dummy.AddItem(i.Type);
             }
@@ -91,7 +93,7 @@ namespace CameraSystem
         private void OnHurt(PlayerHurtEventArgs ev)
         {
             if (ev.Player == null || ev.Attacker == null) return;
-            ReplaceDummy();
+            else if (ev.Player.ReferenceHub == PlayerHub) ReplaceDummy();
         }
 
         private void OnRoundStarted()
@@ -119,7 +121,6 @@ namespace CameraSystem
             player.Health = dummy.Health;
             player.Role = dummy.Role;
             player.Position = dummy.Position;
-            player.Rotation = dummy.Rotation;
 
             player.ClearInventory();
             foreach (Item i in PlayerItems)

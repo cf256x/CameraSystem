@@ -7,6 +7,7 @@ using CommandSystem.Commands.RemoteAdmin.Dummies;
 using GameCore;
 using InventorySystem.Items;
 using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using LabApi.Loader.Features.Plugins;
@@ -49,6 +50,7 @@ namespace CameraSystem
             LabApi.Events.Handlers.PlayerEvents.InteractedToy -= OnInteractedToy;
             LabApi.Events.Handlers.PlayerEvents.Hurt -= OnHurt;
             LabApi.Events.Handlers.ServerEvents.RoundStarted -= OnRoundStarted;
+            LabApi.Events.Handlers.ServerEvents.RoundEnded -= OnRoundEnded;
         }
 
         public override void Enable()
@@ -58,6 +60,13 @@ namespace CameraSystem
             LabApi.Events.Handlers.PlayerEvents.InteractedToy += OnInteractedToy;
             LabApi.Events.Handlers.PlayerEvents.Hurt += OnHurt;
             LabApi.Events.Handlers.ServerEvents.RoundStarted += OnRoundStarted;
+            LabApi.Events.Handlers.ServerEvents.RoundEnded += OnRoundEnded;
+        }
+
+        private void OnRoundEnded(RoundEndedEventArgs ev)
+        {
+            DummyHub = null;
+            PlayerHub = null;
         }
 
         private void OnInteractedToy(PlayerInteractedToyEventArgs ev)
